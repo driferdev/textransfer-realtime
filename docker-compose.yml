@@ -1,0 +1,18 @@
+version: "3.7"
+services:
+    node:
+        image: "node:10-alpine"
+        user: "node"
+        working_dir: /home/node/app
+        environment:
+            - NODE_ENV=dev
+        volumes:
+            - ./:/home/node/app
+        command: "npm run start"
+        ports:
+            - "8000:8000"
+    redis:
+        image: redis:alpine
+        command: ["redis-server", "--appendonly", "yes"]
+        volumes:
+            - ./redis-data:/data
