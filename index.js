@@ -19,15 +19,6 @@ redisClient.on('error', function (err) {
     console.log('Something went wrong ' + err);
 });
 
-
-let texts = {};
-
-let persistTexts = () => {
-    setInterval(() => {
-
-    }, 10000)
-}
-
 io.on('connection', function(socket) {
     console.log('Client connected');
 
