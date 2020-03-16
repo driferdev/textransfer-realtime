@@ -1,8 +1,10 @@
+const config = require('./config');
+
 const server = require('http').createServer();
 const { promisify } = require("util");
 const io = require('socket.io')(server);
 const redis = require('redis')
-const redisClient = redis.createClient(6379, 'redis');
+const redisClient = redis.createClient(config.cacheServerPort, config.cacheServer);
 const getAsync = promisify(redisClient.get).bind(redisClient);
 
 const serverPort = 8000;

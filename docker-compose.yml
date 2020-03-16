@@ -1,18 +1,41 @@
 version: "3.7"
 services:
     node:
+        container_name: textransfer_realtime
         image: "node:10-alpine"
         user: "node"
         working_dir: /home/node/app
-        environment:
-            - NODE_ENV=dev
         volumes:
             - ./:/home/node/app
-        command: "npm run start"
+        command: ["./node_modules/.bin/nodemon", "app.js"]
         ports:
             - "8000:8000"
+        networks:
+            default:
+                aliases:
+                    - local-websocket.textransfer.tech
+            textransfer:
+                aliases:
+                    - local-websocket.textransfer.tech
     redis:
+        container_name: textransfer_redis
         image: redis:alpine
         command: ["redis-server", "--appendonly", "yes"]
         volumes:
             - ./redis-data:/data
+        ports:
+            - "6379:6379"
+        networks:
+            default:
+                aliases:
+                    - local-cache.textransfer.tech
+            textransfer:
+                aliases:
+                    - local-cache.textransfer.tech
+networks:
+    default:
+        ipam:
+            config:
+                - subnet: 11.0.1.0/24
+    textransfer:
+        external: true
