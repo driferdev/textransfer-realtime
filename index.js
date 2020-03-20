@@ -6,7 +6,8 @@ const io = require('socket.io')(server);
 const redis = require('redis')
 const redisClient = redis.createClient(config.cacheServerPort, config.cacheServer);
 const getAsync = promisify(redisClient.get).bind(redisClient);
-
+const keysAsync = promisify(redisClient.keys).bind(redisClient);
+const keyExists = promisify(redisClient.exists).bind(redisClient);
 const serverPort = 8000;
 
 server.listen(serverPort, function() {
@@ -23,6 +24,21 @@ redisClient.on('error', function (err) {
 
 io.on('connection', function(socket) {
     console.log('Client connected');
+
+    socket.on('generateRoom', async () => {
+        const roomNames = await keysAsync('*');
+        let roomName = Math.floor(Math.random()*(99999-10000+10000)+10000);
+        while(roomNames.indexOf(roomName) != -1) {
+            roomName = Math.floor(Math.random()*(99999-10000+10000)+10000);
+        }
+        redisClient.set(roomName, '');
+        socket.emit('roomGenerated', roomName);
+    });
+
+    socket.on('getRoom', async (roomName) => {
+        let exists = await keyExists(roomName);
+        socket.emit('roomExists', { room: roomName, exists})
+    });
 
     socket.on('join', async (data)  => {
         socket.join(data.roomName);
